@@ -1,6 +1,6 @@
 {
   "name": "@etercast/mp3",
-  "version": "1.0.2",
+  "version": "1.0.3",
   "description": "Etercast MP3 encoder",
   "main": "dist/mp3.js",
   "files": [
@@ -8,7 +8,7 @@
   ],
   "scripts": {
     "serve:examples": "cp dist/mp3.* ./examples && serve ./examples",
-    "serve:docs": "serve ./docs/@etercast/mp3/1.0.2/",
+    "serve:docs": "serve ./docs/@etercast/mp3/1.0.3/",
     "build:emscripten": "docker run --rm -v $(pwd):/src -e EMCC_DEBUG=1 trzeci/emscripten-upstream:1.39.3 make",
     "build:js": "cp src/mp3.js dist/mp3.js && cp src/mp3.js dist/mp3.mjs && babel src/mp3.js -o dist/mp3.cjs",
     "build:docs": "jsdoc -c .jsdoc.json",
