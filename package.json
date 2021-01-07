@@ -8,9 +8,9 @@
   ],
   "scripts": {
     "serve:examples": "cp dist/mp3.* ./examples && serve ./examples",
-    "serve:docs": "serve ./docs/@etercast/mp3/1.0.0/",
-    "build:emscripten": "docker run --rm -v %cd%:/src -e EMCC_DEBUG=1 emscripten/emsdk make",
-    "build:js": "cp src/mp3.js dist/mp3.mjs && babel src/mp3.js -o dist/mp3.cjs",
+    "serve:docs": "serve ./docs/@etercast/mp3/1.0.2/",
+    "build:emscripten": "docker run --rm -v $(pwd):/src -e EMCC_DEBUG=1 trzeci/emscripten-upstream:1.39.3 make",
+    "build:js": "cp src/mp3.js dist/mp3.js && cp src/mp3.js dist/mp3.mjs && babel src/mp3.js -o dist/mp3.cjs",
     "build:docs": "jsdoc -c .jsdoc.json",
     "build:examples": "cp dist/mp3.wasm examples && cp dist/mp3.js examples",
     "build": "npm run build:emscripten && npm run build:js && npm run build:docs && npm run build:examples",
