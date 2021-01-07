@@ -7,11 +7,6 @@
 #include <lame/lame.h>
 
 /**
- * Constants.
- */
-#define MP3_DEFAULT_OUTPUT_SAMPLE_RATE 44100
-
-/**
  * Error list.
  */
 #define MP3_NO_ERROR 0
