@@ -3,10 +3,11 @@
  * @module @etercast/mp3
  *
  * @func instantiate
- * @returns Promise<Encoder|Error>
+ * @param {string|URL|Request} [wasm='mp3.wasm'] WASM file URL.
+ * @returns Promise<class Encoder|Error>
  */
-export function instantiate(wasmURL = './mp3.wasm') {
-  return fetch(wasmURL)
+export function instantiate(wasm = './mp3.wasm') {
+  return fetch(wasm)
     .then((response) => response.arrayBuffer())
     .then((arrayBuffer) => WebAssembly.instantiate(arrayBuffer, {
       // TODO: We really don't need these imports because mp3.wasm
@@ -111,13 +112,13 @@ export function instantiate(wasmURL = './mp3.wasm') {
       /**
        * MP3 encoder options
        * @typedef {Object} EncoderOptions
-       * @property {number} sampleRate - Input/output sample rate. Usually this is the value from an AudioContext.
-       * @property {number} numChannels - Number of input/output channels. MP3 supports 1 (mono) or 2 (stereo) channels
-       * @property {number} quality - Encoding quality (0 - lowest, 9 - highest).
+       * @property {number} sampleRate Input/output sample rate. Usually this is the value from an AudioContext.
+       * @property {number} numChannels Number of input/output channels. MP3 supports 1 (mono) or 2 (stereo) channels
+       * @property {number} quality Encoding quality (0 - lowest, 9 - highest).
        *                              In VBR (Variable Bit-Rate) this quality indicates an average kbps but in
        *                              CBR (Constant Bit-Rate) 0 is equal to 32kbps and 9 is equal to 320kbps.
-       * @property {number} samples - Number of samples that will be encoded each time `encode` is called.
-       * @property {EncoderMode} mode - Encoding mode (0 - CBR, 1 - VBR).
+       * @property {number} samples Number of samples that will be encoded each time `encode` is called.
+       * @property {EncoderMode} mode Encoding mode (0 - CBR, 1 - VBR).
        */
 
       /**
@@ -134,20 +135,26 @@ export function instantiate(wasmURL = './mp3.wasm') {
        */
       class Encoder {
         /**
-         * Creates a new MP3 encoder.
+         * Creates a new MP3 encoder. This is equivalent to calling
+         * the constructor using the `new` keyword. It's useful
+         * if you need a function that instantiates the Encoder.
          * @param {EncoderOptions} options
          * @example
          * import instantiate from '@etercast/mp3'
          *
          * const Encoder = await instantiate()
          * const encoder = Encoder.create(encoderOptions)
+         * @returns {Encoder}
          */
         static create(options) {
           return new Encoder(options)
         }
 
         /**
-         * Constructor
+         * Internally this calls the exported method `mp3_create` to
+         * make WASM module create a new structure to hold all the LAME
+         * encoding data. It also calls `mp3_init` to establish encoder
+         * options like number of channels, quality, sampleRate, etc.
          * @param {EncoderOptions} options
          */
         constructor(options) {
@@ -287,7 +294,13 @@ export function instantiate(wasmURL = './mp3.wasm') {
         }
 
         /**
-         * Encodes raw float 32-bit audio data into MP3 frames
+         * Encodes raw Float 32-bit audio data into MP3 frames. An MP3
+         * frame consist of a header and payload, this makes MP3 streamable
+         * and implies that you can merge two files easily by concatenating them.
+         *
+         * If you need to merge two channels then you should use a `ChannelMergeNode`
+         * and then reencode the audio.
+         *
          * @example
          * import instantiate from '@etercast/mp3'
          *
@@ -301,9 +314,9 @@ export function instantiate(wasmURL = './mp3.wasm') {
          * })
          * encoder.encode(leftChannelData, rightChannelData)
          *
-         * @param {Float32Array} left - Left channel (mono)
-         * @param {Float32Array} [right] - Right channel (stereo)
-         * @returns {Uint8Array} - Returns a bunch of encoded frames
+         * @param {Float32Array} left Left channel (mono)
+         * @param {Float32Array} [right] Right channel (stereo)
+         * @returns {Uint8Array} Returns a bunch of encoded frames
          */
         encode(left, right) {
           if (this._state !== EncoderState.RUNNING) {
@@ -329,7 +342,10 @@ export function instantiate(wasmURL = './mp3.wasm') {
         }
 
         /**
-         * Closes the encoder.
+         * Closes the encoder. After this method any call to `encode`
+         * will throw an Error. If you need to append more data after
+         * closing an encoder you can instantiate a new Encoder and then
+         * concatenate all the new data with the old data.
          *
          * @example
          * import instantiate from '@etercast/mp3'

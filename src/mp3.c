@@ -79,7 +79,7 @@ int32_t mp3_init(mp3_t *e, int32_t sample_rate, int32_t num_channels, int32_t qu
     return MP3_ERROR_CONFIG_NUM_CHANNELS;
   }
 
-  if (quality < 0 || quality > 9)
+  if (mode == MP3_CBR_MODE && (quality < 0 || quality > 9))
   {
     return MP3_ERROR_CONFIG_QUALITY;
   }
